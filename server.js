@@ -14,7 +14,10 @@ mongoose.connect('mongodb://127.0.0.1/dates');
 let User = new mongoose.Schema({
     name: String,
     email: String,
-    password: String
+    password: String,
+    gender: String,
+    age: Number,
+    region: String
 })
 
 let UserModel = mongoose.model('user', User);
@@ -30,6 +33,9 @@ app.post('/register', (req,res)=>{
         let name = req.body.name;
         let email = req.body.email;
         let password = req.body.password;
+        let gender = req.body.gender;
+        let age = req.body.age;
+        let region = req.body.region;
         
         bcrypt.genSalt(rounds, function(err, salt) {
             bcrypt.hash(password, salt, function(err, hash) {
@@ -41,7 +47,10 @@ app.post('/register', (req,res)=>{
                new UserModel({
                    name: name,
                    email: email,
-                   password: hash
+                   password: hash,
+                   gender: gender,
+                   age: age,
+                   region:region
                })
                .save((err, savedUser)=>{
                    if(err){
