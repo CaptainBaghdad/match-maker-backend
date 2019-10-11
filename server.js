@@ -6,6 +6,8 @@ let bcrypt = require('bcrypt');
 let rounds = 10;
 let jwt = require('json-web-token');
 let SECRET = process.env.SECRET;
+let multer = require('multer');
+let path = require('path');
 let app = express();
 
 
@@ -21,9 +23,35 @@ let User = new mongoose.Schema({
 })
 
 let UserModel = mongoose.model('user', User);
-//middleware
+let storage = multer.diskStorage({
+    destination: function(req,file,cb){
+        cb(null, 'public/images')
 
+    },
+    filename: function(req, file, cb){
+        cb(null, file.originalname)
+    }
+})
+
+let upload = multer({storage: storage,
+    fileFilter: function (req, file, callback) {
+        var ext = path.extname(file.originalname);
+        if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
+            return callback(new Error('Only images are allowed'))
+        }
+        callback(null, true)
+    },
+    limits:{
+        fileSize: 1024 ** 1024
+    }
+
+
+
+});
+//middleware
+//app.use(express.static(__dirname + '/public'))
 app.use(cors());
+app.use(express.static('public'))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -107,6 +135,19 @@ app.post('/login', (req, res)=>{
     })
 
 
+
+})
+
+app.post('/main-profile', upload.single('profile-file'), (req, res)=>{
+
+
+//console.log(`This is the rtesponse from the server ${Object.keys(req)}`)
+//res.send(req.file)
+//res.setHeader('Content-Type', 'multipart/form-data')
+
+let ans = req.file.filename
+console.log(ans)
+res.send({ans: ans})
 
 })
 
