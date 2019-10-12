@@ -195,7 +195,7 @@ UserModel.findOneAndUpdate({name: name},{$set:{backgroundPic: backgroundPic}}, {
     }
 
     console.log(`This is the foundUser ${foundUser}`)
-   res.send({foundUser: foundUser})
+   res.send(foundUser)
 
 })
 
