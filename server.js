@@ -19,10 +19,15 @@ let User = new mongoose.Schema({
     password: String,
     gender: String,
     age: Number,
-    region: String
+    region: String,
+    profilePic: String,
+    backgroundPic: String,
+    profilePics: [String],
+    backgroundPics: [String]
 })
 
 let UserModel = mongoose.model('user', User);
+
 let storage = multer.diskStorage({
     destination: function(req,file,cb){
         cb(null, 'public/images')
@@ -33,7 +38,34 @@ let storage = multer.diskStorage({
     }
 })
 
+
+let backgroundStorage = multer.diskStorage({
+    destination: function(req,file,cb){
+        cb(null, 'public/images/backgroundImages')
+
+    },
+    filename: function(req, file, cb){
+        cb(null, file.originalname)
+    }
+})
+
 let upload = multer({storage: storage,
+    fileFilter: function (req, file, callback) {
+        var ext = path.extname(file.originalname);
+        if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
+            return callback(new Error('Only images are allowed'))
+        }
+        callback(null, true)
+    },
+    limits:{
+        fileSize: 1024 ** 1024
+    }
+
+
+
+});
+
+let backgroundUpload = multer({storage: backgroundStorage,
     fileFilter: function (req, file, callback) {
         var ext = path.extname(file.originalname);
         if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
@@ -148,6 +180,26 @@ app.post('/main-profile', upload.single('profile-file'), (req, res)=>{
 let ans = req.file.filename
 console.log(ans)
 res.send({ans: ans})
+
+})
+
+
+app.post('/main-background-image', backgroundUpload.single('main-background-image'), (req, res) =>{
+console.log(`FROM NEW NEW OOOOH ${req.file.originalname}`);
+let backgroundPic = req.file.originalname;
+let name = req.body.userName;
+UserModel.findOneAndUpdate({name: name},{$set:{backgroundPic: backgroundPic}}, {new:true}, (err, foundUser)=>{
+    if(err){
+        console.log(err)
+
+    }
+
+    console.log(`This is the foundUser ${foundUser}`)
+   res.send({foundUser: foundUser})
+
+})
+
+
 
 })
 
