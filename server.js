@@ -23,7 +23,8 @@ let User = new mongoose.Schema({
     profilePic: String,
     backgroundPic: String,
     profilePics: [String],
-    backgroundPics: [String]
+    backgroundPics: [String],
+    bio: String
 })
 
 let UserModel = mongoose.model('user', User);
@@ -83,9 +84,11 @@ let backgroundUpload = multer({storage: backgroundStorage,
 //middleware
 //app.use(express.static(__dirname + '/public'))
 app.use(cors());
-app.use(express.static('public'))
-app.use(bodyParser.json());
+app.use(bodyParser.json({type: '*/*'}));
 app.use(bodyParser.urlencoded({extended: true}));
+
+
+app.use(express.static('public'))
 
 app.post('/register', (req,res)=>{
     console.log(`hit the route ${Object.keys(req.body)}`)
@@ -110,7 +113,8 @@ app.post('/register', (req,res)=>{
                    password: hash,
                    gender: gender,
                    age: age,
-                   region:region
+                   region:region,
+                   
                })
                .save((err, savedUser)=>{
                    if(err){
@@ -199,6 +203,29 @@ UserModel.findOneAndUpdate({name: name},{$set:{backgroundPic: backgroundPic}}, {
 
 })
 
+
+
+})
+
+app.post('/set-bio', (req, res) =>{
+   let name = req.body.name;
+   let bioData = req.body.bioData;
+   if(name == '' || name == undefined){
+       console.log('The body is empty again')
+       res.send({msg: 'There was an error, there was no body'})
+
+   }
+   UserModel.findOneAndUpdate({name:name}, {$set:{bio: bioData}}, {new: true}, (err, foundUser) =>{
+    if(err){
+        console.log(err)
+
+    }
+
+    console.log(`This is the updated user ${foundUser}`)
+    res.send(foundUser)
+
+
+   })
 
 
 })
