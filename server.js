@@ -9,6 +9,7 @@ let SECRET = process.env.SECRET;
 let multer = require('multer');
 let path = require('path');
 let app = express();
+let justText = multer();
 
 
 mongoose.connect('mongodb://127.0.0.1/dates');
@@ -20,8 +21,8 @@ let User = new mongoose.Schema({
     gender: String,
     age: Number,
     region: String,
-    profilePic: String,
-    backgroundPic: String,
+    profilePic: {type: String, default: ''},
+    backgroundPic: {type: String, default: ''},
     profilePics: [String],
     backgroundPics: [String],
     bio: String
@@ -84,11 +85,27 @@ let backgroundUpload = multer({storage: backgroundStorage,
 //middleware
 //app.use(express.static(__dirname + '/public'))
 app.use(cors());
-app.use(bodyParser.json({type: '*/*'}));
-app.use(bodyParser.urlencoded({extended: true}));
+// app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded());
 
 
-app.use(express.static('public'))
+app.use(express.static('public'));
+
+
+app.post('/get-user', justText.none(), (req,res)=> {
+    console.log(`FIREREREREREEEEEEEEE ${Object.keys(req)} `)
+//console.log(`REQUEST FROM THE COMPONENT DID MOUNT ${Object.values(req.headers)}`)
+UserModel.findOne({name: req.body.name}, (err,foundUser)=>{
+if(err){
+    console.log(err);
+
+}
+
+console.log(`WE HAVE THE USER ${foundUser}`);
+res.send(foundUser)
+})
+
+});
 
 app.post('/register', (req,res)=>{
     console.log(`hit the route ${Object.keys(req.body)}`)
@@ -135,8 +152,8 @@ app.post('/register', (req,res)=>{
 
 })
 
-app.post('/login', (req, res)=>{
-    console.log(`This is the request email ${req.body.email}`)
+app.post('/login', justText.none(), (req, res)=>{
+    console.log(`This is the request email ${Object.keys(req)}`)
     if(req.body.email == '' || req.body.email == undefined){
         res.send({error: 'You have not provided the right credentials. Are you sure you have already registered?'})
 
@@ -159,7 +176,7 @@ app.post('/login', (req, res)=>{
                         console.log(err)
 
                     }
-                    res.send({token: token})
+                    res.send({token: token, foundUser: foundUser})
 
                 })
 
@@ -175,15 +192,26 @@ app.post('/login', (req, res)=>{
 })
 
 app.post('/main-profile', upload.single('profile-file'), (req, res)=>{
+    console.log(`LADEE LADEE DAH ${Object.keys(req.body)}`)
+    let ans = req.file.originalname;
+    UserModel.findOneAndUpdate({name: req.body.name}, {$set:{profilePic: ans}}, {new: true}, (err, foundUser)=>{
+        if(err){
+            console.log(err)
+        }
+        console.log(`This should be the profilePic ${foundUser.profilePic}`)
+        res.send(foundUser)
+    })
 
+//console.log(`MAIN PROFILE ${Object.keys(req.body)}`)
 
 //console.log(`This is the rtesponse from the server ${Object.keys(req)}`)
 //res.send(req.file)
 //res.setHeader('Content-Type', 'multipart/form-data')
 
-let ans = req.file.filename
-console.log(ans)
-res.send({ans: ans})
+
+//console.log(`This should be the file name ${ans}`)
+
+
 
 })
 
