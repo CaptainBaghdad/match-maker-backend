@@ -235,11 +235,13 @@ UserModel.findOneAndUpdate({name: name},{$set:{backgroundPic: backgroundPic}}, {
 
 })
 
-app.post('/set-bio', (req, res) =>{
+app.post('/set-bio', justText.none(), (req, res) =>{
+   
    let name = req.body.name;
-   let bioData = req.body.bioData;
+   let bioData = req.body.bioInfo;
+   
    if(name == '' || name == undefined){
-       console.log('The body is empty again')
+       console.log('The body is empty')
        res.send({msg: 'There was an error, there was no body'})
 
    }
@@ -249,7 +251,7 @@ app.post('/set-bio', (req, res) =>{
 
     }
 
-    console.log(`This is the updated user ${foundUser}`)
+    
     res.send(foundUser)
 
 
