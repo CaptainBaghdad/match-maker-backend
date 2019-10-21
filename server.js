@@ -93,7 +93,7 @@ app.use(express.static('public'));
 
 app.post('/get-all-users', justText.none(), (req, res) =>{
     let personToExclude = req.body.name;
-    console.log(`WOWOWOWOWOW ${Object.keys(req.body)}`)
+    //console.log(`WOWOWOWOWOW ${Object.keys(req.body)}`)
     if(personToExclude){
         UserModel.find({}, (err, allUsers)=>{
             let ans = allUsers.filter((ele)=>{
