@@ -91,6 +91,26 @@ app.use(cors());
 
 app.use(express.static('public'));
 
+app.post('/get-all-users', justText.none(), (req, res) =>{
+    let personToExclude = req.body.name;
+    console.log(`WOWOWOWOWOW ${Object.keys(req.body)}`)
+    if(personToExclude){
+        UserModel.find({}, (err, allUsers)=>{
+            let ans = allUsers.filter((ele)=>{
+                return ele.name != personToExclude
+
+            })
+
+            res.send(ans)
+        })
+
+
+    }
+
+    //res.send({msg: 'there is an error'})
+
+});
+
 
 app.post('/get-user', justText.none(), (req,res)=> {
     console.log(`FIREREREREREEEEEEEEE ${Object.keys(req)} `)
