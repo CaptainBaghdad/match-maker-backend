@@ -91,6 +91,26 @@ app.use(cors());
 
 app.use(express.static('public'));
 
+app.post('/update-profile', upload.single('profilePic'), (req,res) =>{
+    if(req.body.name == "" || req.body.name == null){
+        console.log(`NO SIRRR`);
+    }
+
+    UserModel.findOneAndUpdate({name: req.body.name}, {$set:{profilePic: req.file.originalname},$push:{profilePics: req.file.originalname}}, (err, foundUser)=>{
+        if(err){
+            console.log(`There was an error ${err}`)
+            console.log(`^^^^^^^|||||| ${foundUser}`)
+            res.send(foundUser)
+
+        }
+        //foundUser.profilePics.push(req.file.originalname)
+       
+        
+
+    })
+
+})
+
 app.post('/get-all-users', justText.none(), (req, res) =>{
     let personToExclude = req.body.name;
     //console.log(`WOWOWOWOWOW ${Object.keys(req.body)}`)
@@ -127,8 +147,8 @@ res.send(foundUser)
 
 });
 
-app.post('/register', (req,res)=>{
-    console.log(`hit the route ${Object.keys(req.body)}`)
+app.post('/register', justText.none(),(req,res)=>{
+    //console.log(`hit the route ${Object.keys(req.body)}`)
     if(req.body.name != ''){
         let name = req.body.name;
         let email = req.body.email;
@@ -231,6 +251,18 @@ app.post('/main-profile', upload.single('profile-file'), (req, res)=>{
 
 //console.log(`This should be the file name ${ans}`)
 
+
+
+})
+
+app.post('/update-profile', upload.single('profile-pic'), (req, res)=>{
+console.log(`This isfrom the update Profile ${Object.keys(req.body)}` )
+if(!req.file){
+    console.log('There was an errror on the backend')
+
+}
+
+    
 
 
 })
